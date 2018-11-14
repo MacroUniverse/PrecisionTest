@@ -1,5 +1,4 @@
-#ifndef INC_COMPLEXPRECISION
-#define INC_COMPLEXPRECISION
+#pragma once
 
 /*
  *******************************************************************************
@@ -291,5 +290,3 @@ template<class _Ty> complex_precision<_Ty> pow( const complex_precision<_Ty> x, 
 
    return z;
    }
-
-#endif

@@ -97,6 +97,8 @@
 #include "fprecision.h"
 
 
+namespace ArbPrec {
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -259,7 +261,7 @@ void _int_fourier(std::complex<double> data[], unsigned int n, int isign)
 	for (m = 2; n >= m; m <<= 1)
 	{
 		theta = isign * 2 * 3.14159265358979323846264 / m;
-		wp = std::complex<double>(-2.0 * sin(0.5 * theta) * sin(0.5 * theta), sin(theta));
+		wp = std::complex<double>(-2.0 * std::sin(0.5 * theta) * std::sin(0.5 * theta), std::sin(theta));
 		w = std::complex<double>(1, 0); // exp(0) == exp( isign*2*PI*i/mmax * m-1 )
 		mh = m >> 1;
 
@@ -311,7 +313,7 @@ void _int_real_fourier(double data[], unsigned int n, int isign)
 		c2 = c1;
 		theta = -theta;
 	}
-	wp = std::complex<double>(-2.0 * sin(0.5 * theta) * sin(0.5 * theta), sin(theta));
+	wp = std::complex<double>(-2.0 * std::sin(0.5 * theta) * std::sin(0.5 * theta), std::sin(theta));
 	w = std::complex<double>(1 + wp.real(), wp.imag());
 	for (i = 1; i < (int)(n >> 2); i++)
 	{
@@ -1699,7 +1701,7 @@ std::string _float_precision_ftoa(const float_precision *a)
 
 			s.append(".");
 			src = frac.get_mantissa();
-			for (rem = (int)((log((double)F_RADIX) / log(10.0)*(r256.precision()) + 1)); rem > 0; )
+			for (rem = (int)((std::log((double)F_RADIX) / std::log(10.0)*(r256.precision()) + 1)); rem > 0; )
 			{
 				int digit, expo_base;
 
@@ -3318,7 +3320,7 @@ float_precision sqrt_old2(const float_precision& x)
 	else
 		if (expo - 2 * expo_sq < 0)
 			fv /= (double)F_RADIX;
-	fu = 1 / sqrt(fv);
+	fu = 1 / std::sqrt(fv);
 
 	u = float_precision(fu);
 	// Now iterate using Netwon Un=0.5U(3-VU^2)
@@ -3405,7 +3407,7 @@ float_precision sqrt(const float_precision& x)
 	else
 		if (expo - 2 * expo_sq < 0)
 			fv /= (double)F_RADIX;
-	fv = 1 / sqrt(fv);  // set the initial guess with at approx 16 correct digits
+	fv = 1 / std::sqrt(fv);  // set the initial guess with at approx 16 correct digits
 
 	tmp.precision(precision + 1);
 	u = float_precision(fv);
@@ -3570,7 +3572,7 @@ std::string spigot_e(const int digits)
 	// Use Newton method to find in less that 4-5 iteration
 	for (xold = 5, xnew = 0; ; xold = xnew)
 	{
-		double  f = xold*(log(xold) - 1) + 0.5*log(2 * 3.141592653589793 * xold);
+		double  f = xold*(std::log(xold) - 1) + 0.5*std::log(2 * 3.141592653589793 * xold);
 		double f1 = 0.5 / xold + log(xold);
 		xnew = xold - (f - test) / f1;
 		if ((int)ceil(xnew) == (int)ceil(xold))
@@ -4087,7 +4089,7 @@ float_precision log(const float_precision& x)
 	dlimit = pow(1.2, 1.0 / dlimit);
 	zd = (double)z;
 	for (k = 0; zd > dlimit; k++)
-		zd = sqrt(zd);
+		zd = std::sqrt(zd);
 	if (k>0)
 		precision = precision + PADJUST(k / 4);
 	z.precision(precision); // adjust precision to allow correct rounding of result
@@ -4660,7 +4662,7 @@ float_precision atan(const float_precision& x)
 	// Calculate the number of reduction needed 
 	dlimit = 0.5 / pow(2.0, j); // Only estimated target reduction limit based on x/(1+sqrt(1+x*x)->x/2 for small x
 	for (j = 1; zd > dlimit; j++)
-		zd = zd / (1.0 + sqrt(1.0 + zd*zd));
+		zd = zd / (1.0 + std::sqrt(1.0 + zd*zd));
 
 	// Adjust the precision
 	if (j>0)
@@ -4801,7 +4803,7 @@ float_precision asin(const float_precision& x)
 	// Find the argument reduction factor
 	for (dlimit = 1.0; j > 0; j--)
 	{
-		dlimit /= sqrt(2.0)* sqrt(1.0 + sqrt(1.0 - dlimit * dlimit));
+		dlimit /= std::sqrt(2.0)* std::sqrt(1.0 + std::sqrt(1.0 - dlimit * dlimit));
 		if (dlimit < zd) break;
 	}
 	// j is the number of argument reduction
@@ -5495,7 +5497,7 @@ int_precision _int_precision_fastdiv(const int_precision &s1, const int_precisio
 }
 
 
-int_precision _int_precision_fastrem(const int_precision &s1, const int_precision &s2)
+inline int_precision _int_precision_fastrem(const int_precision &s1, const int_precision &s2)
 {
 	int ss;
 	int_precision r2;
@@ -5518,3 +5520,5 @@ int_precision _int_precision_fastrem(const int_precision &s1, const int_precisio
 /// FLOATING POINT FUNCTIONS
 ///
 //////////////////////////////////////////////////////////////////////////////////////
+
+} // namespace ArbPrec

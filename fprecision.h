@@ -81,11 +81,12 @@
 
 
 /* define version string */
-static char _VF_[] = "@(#)fprecision.h 01.29 -- Copyright (C) Future Team Aps";
+// static char _VF_[] = "@(#)fprecision.h 01.29 -- Copyright (C) Future Team Aps";
 
 #include <algorithm>
 #include "iprecision.h"
 
+namespace ArbPrec {
 
 /// The four different ronding modes
 /// # ROUND_NEAR  Rounded result is the closest to the infinitely precise result.
@@ -1973,3 +1974,5 @@ inline float_precision fabs( const float_precision& a )
 /// END FLOAT PRECISION FUNCTIONS
 ///
 //////////////////////////////////////////////////////////////////////////////////////
+
+} // namespace ArbPrec

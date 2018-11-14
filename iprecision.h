@@ -82,8 +82,9 @@
  * --------------------------------------------------------------------------
 */
 
+
 /* define version string */
-static char _VI_[] = "@(#)iprecision.h 01.29 -- Copyright (C) Future Team Aps";
+// static char _VI_[] = "@(#)iprecision.h 01.29 -- Copyright (C) Future Team Aps";
 
 // If _INT_PRECESION_FAST_DIV_REM is defined it will use a magnitude faster div and rem integer operation.
 #define _INT_PRECISSION_FAST_DIV_REM
@@ -97,18 +98,17 @@ static char _VI_[] = "@(#)iprecision.h 01.29 -- Copyright (C) Future Team Aps";
 #include <ostream>
 #include <istream>
 #include <cstdlib>
-using std::atoi; using std::strtoul;
-// End ANSI addition 
-
 #include <stdlib.h> 
 #include <string.h>
 
+namespace ArbPrec {
+
 // RADIX can either be 2, 8, 10, 16 or 256!
-static const int BASE_2	  = 2;
-static const int BASE_8   = 8;
-static const int BASE_10  = 10;
-static const int BASE_16  = 16;
-static const int BASE_256 = 256;
+const int BASE_2	  = 2;
+const int BASE_8   = 8;
+const int BASE_10  = 10;
+const int BASE_16  = 16;
+const int BASE_256 = 256;
 
 ///
 /// @class precision_ctrl
@@ -311,7 +311,8 @@ class int_precision
       class divide_by_zero {};
    };
 
-
+int_precision _int_precision_fastrem(const int_precision &s1, const int_precision &s2);
+int_precision _int_precision_fastdiv(const int_precision &s1, const int_precision &s2);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -608,9 +609,9 @@ inline int_precision::operator long() const
    {// Conversion to long
    long l;
    if( RADIX == BASE_10 ) 
-      l = atoi( mNumber.c_str() ); // Do it directly
+      l = std::atoi( mNumber.c_str() ); // Do it directly
    else 
-      l = atoi( _int_precision_itoa( &mNumber ).c_str() ); // Need to convert from RADIX to BASE_10 )
+      l = std::atoi( _int_precision_itoa( &mNumber ).c_str() ); // Need to convert from RADIX to BASE_10 )
    return l;
    }    
 
@@ -681,9 +682,9 @@ inline int_precision::operator unsigned long() const
    {// Conversion to unsigned long
    unsigned long ul;
    if( RADIX == BASE_10 ) 
-      ul = strtoul( mNumber.c_str(), NULL, BASE_10 ); // Do it directly
+      ul = std::strtoul( mNumber.c_str(), NULL, BASE_10 ); // Do it directly
    else 
-      ul = strtoul( _int_precision_itoa( &mNumber ).c_str(), NULL, BASE_10 ); // Need to convert from RADIX to BASE_10 )
+      ul = std::strtoul( _int_precision_itoa( &mNumber ).c_str(), NULL, BASE_10 ); // Need to convert from RADIX to BASE_10 )
    return ul;
    }    
 
@@ -1027,7 +1028,7 @@ inline int_precision& int_precision::operator<<=( const int_precision& a )
 	   { // BASE 2
 		int shift;  // Don't shift. just add zeros number of shift times!
 		s2.insert( 0, "+" );
-		shift = atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
+		shift = std::atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
 		s1.append( shift, ICHARACTER( 0 ) );
 		s2 = ICHARACTER(0);
 		}
@@ -1038,11 +1039,11 @@ inline int_precision& int_precision::operator<<=( const int_precision& a )
       int shift;
 
       if( RADIX == BASE_10 ) 
-         shift = atoi( s2.c_str() ); // Do it directly
+         shift = std::atoi( s2.c_str() ); // Do it directly
       else 
          {
          s2.insert( 0, "+" );
-         shift = atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10
+         shift = std::atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10
 			s2 = s2.substr( 1 );
          }
 
@@ -1105,7 +1106,7 @@ inline int_precision& int_precision::operator>>=( const int_precision& a )
 		int shift;
 
 		s2.insert( 0, "+" );
-		shift = atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
+		shift = std::atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
 		if( (int)s1.size() <= shift )
 			s1 = ICHARACTER( 0 );
 		else
@@ -1119,11 +1120,11 @@ inline int_precision& int_precision::operator>>=( const int_precision& a )
       int shift;
 
       if( RADIX == BASE_10 ) 
-         shift = atoi( s2.c_str() ); // Do it directly
+         shift = std::atoi( s2.c_str() ); // Do it directly
       else 
          {
          s2.insert( 0, "+" );
-         shift = atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
+         shift = std::atoi( _int_precision_itoa( &s2 ).c_str() ); // Need to convert from RADIX to BASE_10 )
 			s2 = s2.substr( 1 );
          }
 
@@ -1867,3 +1868,5 @@ template <class _Ty> inline bool operator>=( const _Ty& a, const int_precision& 
    {
    return a < b ? false: true;
    }
+
+} // namespace ArcPrec
