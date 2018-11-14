@@ -3,16 +3,13 @@
 //#include "intervalprecision.h" TODO!
 using std::cout; using std::endl;
 
-namespace slisc {
-	using ArbPrec::int_precision;
-	using ArbPrec::float_precision;
-	using ArbPrec::_float_table;
-	using ArbPrec::_PI;
-}
+using ArbPrec::int_precision;
+using ArbPrec::float_precision;
+using ArbPrec::_float_table;
+using ArbPrec::_PI;
 
 int main()
 {
-	using namespace slisc;
 // int precision
 int_precision a("11111111"), d;
 cout << a << endl;
