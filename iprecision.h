@@ -140,7 +140,7 @@ public:
 	inline int F_RADIX(unsigned int fr) { return(mFRadix = fr); }
 };
 
-extern  precision_ctrl precision_ctrl; // Something's wrong here
+// extern  precision_ctrl precision_ctrl;
 
 static const int RADIX = BASE_256;			// Set internal base for the arbitrary precision
 

@@ -1,5 +1,4 @@
-#include "iprecision.h"
-#include "fprecision.h"
+#include "precisioncore.h"
 #include "complexprecision.h"
 //#include "intervalprecision.h"
 using std::cout; using std::endl;
