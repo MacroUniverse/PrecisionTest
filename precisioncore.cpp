@@ -1269,14 +1269,12 @@ std::string _int_precision_itoa( const std::string *a )
    if( RADIX == BASE_10 )     // Nothing to convert
       s += src;
    else
-        if( RADIX > BASE_10 )
-            {
-            for( ; _int_precision_compare( &src, &c0 ) != 0;  )
-                {
-                src = _int_precision_udiv_short( &rem, &src, BASE_10 );
-              s.insert( (std::string::size_type)1, 1, (char)ICHARACTER10( rem ) );
-               }
-            }
+        if( RADIX > BASE_10 ) {
+            for( ; _int_precision_compare( &src, &c0 ) != 0;  ) {
+				src = _int_precision_udiv_short(&rem, &src, BASE_10);
+				s.insert((std::string::size_type)1, 1, (char)ICHARACTER10(rem));
+			}
+		}
         else
          { // Convert RADIX 2..9
             int number;

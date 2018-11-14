@@ -126,21 +126,21 @@ static const int BASE_256 = 256;
 ///   Default float_precision radix is BASE_10
 //
 class precision_ctrl {
-   int mIRadix;			// Internal base of int_precision
-   int mFRadix;			// Internal base of float_precision
+	int mIRadix;			// Internal base of int_precision
+	int mFRadix;			// Internal base of float_precision
 
-   public:
-      // Constructor
-      precision_ctrl( unsigned int ir=BASE_256, unsigned int fr=BASE_256): mIRadix(ir), mFRadix(fr) {}
-      
-      // Coordinate functions
-      inline int I_RADIX() const						{ return mIRadix; }
-      inline int I_RADIX( unsigned int ir )		{ return( mIRadix = ir ); }
-	  inline int F_RADIX() const						{ return mFRadix; }
-	  inline int F_RADIX( unsigned int fr )		{ return( mFRadix = fr ); }
-      };
+public:
+	// Constructor
+	precision_ctrl(unsigned int ir = BASE_256, unsigned int fr = BASE_256) : mIRadix(ir), mFRadix(fr) {}
 
-extern precision_ctrl precision_ctrl;
+	// Coordinate functions
+	inline int I_RADIX() const { return mIRadix; }
+	inline int I_RADIX(unsigned int ir) { return(mIRadix = ir); }
+	inline int F_RADIX() const { return mFRadix; }
+	inline int F_RADIX(unsigned int fr) { return(mFRadix = fr); }
+};
+
+extern  precision_ctrl precision_ctrl; // Something's wrong here
 
 static const int RADIX = BASE_256;			// Set internal base for the arbitrary precision
 
