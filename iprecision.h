@@ -1,5 +1,4 @@
-#ifndef INC_PRECISION
-#define INC_PRECISION
+#pragma once
 
 /*
  *******************************************************************************
@@ -1868,5 +1867,3 @@ template <class _Ty> inline bool operator>=( const _Ty& a, const int_precision& 
    {
    return a < b ? false: true;
    }
-  
-#endif

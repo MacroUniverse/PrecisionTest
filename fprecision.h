@@ -1,5 +1,4 @@
-#ifndef INC_FPRECISION
-#define INC_FPRECISION
+#pragma once
 
 /*
  *******************************************************************************
@@ -93,16 +92,16 @@ static char _VF_[] = "@(#)fprecision.h 01.29 -- Copyright (C) Future Team Aps";
 /// # ROUND_DOWN  Rounded result is close to but no greater than the infinitely precise result.
 /// # ROUND_UP    Rounded result is close to but no less than the infinitely precise result.
 /// # ROUND ZERO  Rounded result is close to but no greater in absolute value than the infinitely precise result.
-enum round_mode { ROUND_NEAR, ROUND_UP, ROUND_DOWN, ROUND_ZERO };
+enum round_mode { ROUND_NEAR, ROUND_UP, ROUND_DOWN, ROUND_ZERO, DEFAULT};
 
 // The build in constant!
 enum table_type { _LN2, _LN10, _PI, _EXP1 };
 
 // Default precision of 20 Radix digits if not specified
-static const int PRECISION = 20;
+const int PRECISION = 20;
 
 // Float_precision radix. Can be either BASE 2, BASE_10, BASE 16 or BASE_256
-static const int F_RADIX = BASE_256;
+const int F_RADIX = BASE_256;
 
 inline unsigned char FDIGIT( char x )			{ return F_RADIX <= 10 ? (unsigned char)( x - '0') : (unsigned char)x; }
 inline unsigned char FCHARACTER( char x )		{ return F_RADIX <= 10 ? (unsigned char)( x + '0') : (unsigned char)x; }
@@ -133,22 +132,43 @@ inline unsigned int PDIGIT10(unsigned int digit)	{ return (unsigned int)ceil( ( 
 ///   Default preicsion is the manifest constant PRECISION 
 ///   Default rounding mode is ROUND_NEAR (round to nearest)
 //
-class float_precision_ctrl {
-   enum round_mode   mRmode;  // Global Rounding mode. Default Round Nearest
-   unsigned int      mPrec;   // Global Number of decimals in mantissa. Default PRECISION.
-   
-   public:
-      // Constructor
-      float_precision_ctrl( unsigned int p=PRECISION, enum round_mode rm=ROUND_NEAR ): mRmode(rm), mPrec(p) {}
-      
-      // Coordinate functions
-      enum round_mode mode() const                 { return mRmode; }
-      enum round_mode mode( enum round_mode m )    { return( mRmode = m ); }
-      unsigned int precision() const               { return mPrec>0 ? mPrec : PRECISION; }
-      unsigned precision( unsigned int p )         { mPrec = p > 0 ? p : PRECISION; return mPrec; }
-   };
+//class float_precision_ctrl {
+//   enum round_mode   mRmode;  // Global Rounding mode. Default Round Nearest
+//   unsigned int      mPrec;   // Global Number of decimals in mantissa. Default PRECISION.
+//   
+//   public:
+//      // Constructor
+//      float_precision_ctrl( unsigned int p=PRECISION, enum round_mode rm=ROUND_NEAR ): mRmode(rm), mPrec(p) {}
+//      
+//      // Coordinate functions
+//      enum round_mode mode() const                 { return mRmode; }
+//      enum round_mode mode( enum round_mode m )    { return( mRmode = m ); }
+//      unsigned int precision() const               { return mPrec>0 ? mPrec : PRECISION; }
+//      unsigned precision( unsigned int p )         { mPrec = p > 0 ? p : PRECISION; return mPrec; }
+//};
 
-extern float_precision_ctrl float_precision_ctrl;
+// extern float_precision_ctrl float_precision_ctrl;
+// don't use global object, use function instead
+inline enum round_mode float_precision_ctrl_mode(const enum round_mode mode = DEFAULT)
+{
+	static enum round_mode mRmode = ROUND_NEAR;
+	if (mode == DEFAULT)
+		return mRmode;
+	else
+		return (mRmode = mode);
+}
+
+inline int float_precision_ctrl_precision(const int n = -1)
+{
+	static int mPrec = PRECISION;
+	if (n <= 0)
+		return mPrec;
+	else
+		return (mPrec = n);
+}
+
+////////////////
+
 
 class float_precision;
    
@@ -275,8 +295,8 @@ class float_precision {
 
    public:
       // Constructors
-	  float_precision()							{ mRmode = float_precision_ctrl.mode();
-												mPrec = float_precision_ctrl.precision();
+	  float_precision()							{ mRmode = float_precision_ctrl_mode();
+												mPrec = float_precision_ctrl_precision();
 												mExpo = 0;
 												mNumber = "+" + FCHARACTER(0);            // Build number
 												}
@@ -293,7 +313,7 @@ class float_precision {
       float_precision( double, unsigned int, enum round_mode );				// When initialized through a double
       float_precision( const char *, unsigned int, enum round_mode );		// When initialized through a char string
 	  float_precision( const std::string&, unsigned int, enum round_mode);	// When initialized through a std::string
-      float_precision( const float_precision& s /*= float_precision(0, float_precision_ctrl.precision(), float_precision_ctrl.mode() )*/ ): mNumber(s.mNumber), mRmode(s.mRmode), mPrec(s.mPrec), mExpo(s.mExpo) {}  // When initialized through another float_precision
+      float_precision( const float_precision& s /*= float_precision(0, float_precision_ctrl_precision(), float_precision_ctrl.mode() )*/ ): mNumber(s.mNumber), mRmode(s.mRmode), mPrec(s.mPrec), mExpo(s.mExpo) {}  // When initialized through another float_precision
       float_precision( const int_precision&, unsigned int, enum round_mode ); 
 
       // Coordinate functions
@@ -307,7 +327,7 @@ class float_precision {
       unsigned int precision() const               { return mPrec; }
       unsigned precision( unsigned int p )         { int sign; std::string m;
                                                    sign = CHAR_SIGN( mNumber[0] );
-                                                   mPrec = p > 0 ? p : float_precision_ctrl.precision();
+                                                   mPrec = p > 0 ? p : float_precision_ctrl_precision();
                                                    m = mNumber.substr(1); // Bypass sign
                                                    mExpo += _float_precision_rounding( &m, sign, mPrec, mRmode );
                                                    mNumber = SIGN_STRING( sign ) + m;
@@ -377,7 +397,7 @@ class float_precision {
 ///	@brief 		Char constructor for float_precision
 ///	@return 		nothing
 ///	@param      "c"	-	Integer char digit
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -387,7 +407,7 @@ class float_precision {
 ///   Validate and initilize with a character
 ///   Input Always in BASE_10
 //
-inline float_precision::float_precision( const char c, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( const char c, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -417,7 +437,7 @@ inline float_precision::float_precision( const char c, unsigned int p = float_pr
 ///	@brief 		Unsigned Char constructor for float_precision
 ///	@return 		nothing
 ///	@param      "c"	-	Integer unsigned char digit
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -427,7 +447,7 @@ inline float_precision::float_precision( const char c, unsigned int p = float_pr
 ///   Validate and initilize with a character
 ///   Input Always in BASE_10
 //
-inline float_precision::float_precision( const unsigned char c, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( const unsigned char c, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -457,7 +477,7 @@ inline float_precision::float_precision( const unsigned char c, unsigned int p =
 ///	@brief 		Short constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -469,7 +489,7 @@ inline float_precision::float_precision( const unsigned char c, unsigned int p =
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( short i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( short i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -494,7 +514,7 @@ inline float_precision::float_precision( short i, unsigned int p = float_precisi
 ///	@brief 		Unsigned Short constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -506,7 +526,7 @@ inline float_precision::float_precision( short i, unsigned int p = float_precisi
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( unsigned short i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( unsigned short i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -531,7 +551,7 @@ inline float_precision::float_precision( unsigned short i, unsigned int p = floa
 ///	@brief 		Integer constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -543,7 +563,7 @@ inline float_precision::float_precision( unsigned short i, unsigned int p = floa
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( int i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( int i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -568,7 +588,7 @@ inline float_precision::float_precision( int i, unsigned int p = float_precision
 ///	@brief 		Unsigned Integer constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -580,7 +600,7 @@ inline float_precision::float_precision( int i, unsigned int p = float_precision
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( unsigned int i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( unsigned int i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -605,7 +625,7 @@ inline float_precision::float_precision( unsigned int i, unsigned int p = float_
 ///	@brief 		long constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -617,7 +637,7 @@ inline float_precision::float_precision( unsigned int i, unsigned int p = float_
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( long i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( long i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -642,7 +662,7 @@ inline float_precision::float_precision( long i, unsigned int p = float_precisio
 ///	@brief 		Unsigned Long constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -654,7 +674,7 @@ inline float_precision::float_precision( long i, unsigned int p = float_precisio
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( unsigned long i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( unsigned long i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    int sign;
    std::string number;
@@ -678,7 +698,7 @@ inline float_precision::float_precision( unsigned long i, unsigned int p = float
 ///	@brief 		int64_t 64bit constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -690,7 +710,7 @@ inline float_precision::float_precision( unsigned long i, unsigned int p = float
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( int64_t i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode())
+inline float_precision::float_precision( int64_t i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
 	{
 	int sign;
 	std::string number;
@@ -715,7 +735,7 @@ inline float_precision::float_precision( int64_t i, unsigned int p = float_preci
 ///	@brief 		Usinged 64bit constructor for float_precision
 ///	@return 		nothing
 ///	@param      "i"	-	64bit Integer number
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -727,7 +747,7 @@ inline float_precision::float_precision( int64_t i, unsigned int p = float_preci
 ///   The input integer is always BASE_10
 ///   Only use core base functions to create multi precision numbers
 //
-inline float_precision::float_precision( uint64_t i, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode())
+inline float_precision::float_precision( uint64_t i, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
 	{
 	int sign;
 	std::string number;
@@ -751,7 +771,7 @@ inline float_precision::float_precision( uint64_t i, unsigned int p = float_prec
 ///	@brief 		string constructor for float_precision
 ///	@return 		nothing
 ///	@param      "str"	-	Floating point number as a string
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -763,7 +783,7 @@ inline float_precision::float_precision( uint64_t i, unsigned int p = float_prec
 ///   Only use core base functions to create multi precision numbers
 ///   The float can be any integer or decimal float representation
 //
-inline float_precision::float_precision( const char *str, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( const char *str, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    if( str == NULL || *str == '\0' )
       { throw bad_int_syntax(); return; }
@@ -778,7 +798,7 @@ inline float_precision::float_precision( const char *str, unsigned int p = float
 ///	@brief 		std::string constructor for float_precision
 ///	@return 		nothing
 ///	@param      "str"	-	Floating point number as a std::string
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -791,7 +811,7 @@ inline float_precision::float_precision( const char *str, unsigned int p = float
 ///   The float can be any integer or decimal float representation
 //
 
-inline float_precision::float_precision(const std::string& str, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode())
+inline float_precision::float_precision(const std::string& str, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
 	{
 	if ( str.empty() )
 		{
@@ -809,7 +829,7 @@ inline float_precision::float_precision(const std::string& str, unsigned int p =
 ///	@brief 		double constructor for float_precision
 ///	@return 		nothing
 ///	@param      "d"	-	Floating point number in IEE754 format
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -821,7 +841,7 @@ inline float_precision::float_precision(const std::string& str, unsigned int p =
 ///   Only use core base functions to create multi precision numbers
 ///   The float can be any integer or decimal float representation
 //
-inline float_precision::float_precision( double d, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( double d, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    mRmode = m;
    mPrec = p;
@@ -835,7 +855,7 @@ inline float_precision::float_precision( double d, unsigned int p = float_precis
 ///	@brief 		double constructor for float_precision
 ///	@return 		nothing
 ///	@param      "ip"	-	arbitrary integer precision 
-///	@param      "p"	-	Number of precision (default float_precision_ctrl.precision())
+///	@param      "p"	-	Number of precision (default float_precision_ctrl_precision())
 ///	@param      "m"	-	rounding mode (default float_precision_ctrl.mode())
 ///
 ///	@todo 
@@ -846,7 +866,7 @@ inline float_precision::float_precision( double d, unsigned int p = float_precis
 ///    1) conver to Ascii decimal string and then 
 ///   2) convert it back to floating format
 //
-inline float_precision::float_precision( const int_precision& ip, unsigned int p = float_precision_ctrl.precision(), enum round_mode m = float_precision_ctrl.mode() )
+inline float_precision::float_precision( const int_precision& ip, unsigned int p = float_precision_ctrl_precision(), enum round_mode m = float_precision_ctrl_mode())
    {
    std::string s;
 
@@ -1953,4 +1973,3 @@ inline float_precision fabs( const float_precision& a )
 /// END FLOAT PRECISION FUNCTIONS
 ///
 //////////////////////////////////////////////////////////////////////////////////////
-#endif

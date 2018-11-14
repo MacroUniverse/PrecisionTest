@@ -1558,7 +1558,7 @@ bool iprime(const int_precision& prime)
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class float_precision_ctrl float_precision_ctrl(PRECISION, ROUND_NEAR);
+// class float_precision_ctrl float_precision_ctrl(PRECISION, ROUND_NEAR);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1592,7 +1592,7 @@ std::istream& operator>>(std::istream& strm, float_precision& d)
 
 	std::cin.putback(ch);  // ch contains the first character not part of the number, so put it back
 	if (!strm.fail() && (cnt > 0 || exp_cnt > 0))  // Valid number 
-		d = float_precision(const_cast<char *>(s.c_str()), float_precision_ctrl.precision(), float_precision_ctrl.mode());
+		d = float_precision(const_cast<char *>(s.c_str()), float_precision_ctrl_precision(), float_precision_ctrl_mode());
 	return strm;
 }
 
