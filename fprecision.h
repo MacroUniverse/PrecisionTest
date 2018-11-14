@@ -102,7 +102,7 @@ enum table_type { _LN2, _LN10, _PI, _EXP1 };
 static const int PRECISION = 20;
 
 // Float_precision radix. Can be either BASE 2, BASE_10, BASE 16 or BASE_256
-static const int F_RADIX = BASE_10; 
+static const int F_RADIX = BASE_256;
 
 inline unsigned char FDIGIT( char x )			{ return F_RADIX <= 10 ? (unsigned char)( x - '0') : (unsigned char)x; }
 inline unsigned char FCHARACTER( char x )		{ return F_RADIX <= 10 ? (unsigned char)( x + '0') : (unsigned char)x; }

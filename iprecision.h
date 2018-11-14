@@ -131,7 +131,7 @@ class precision_ctrl {
 
    public:
       // Constructor
-      precision_ctrl( unsigned int ir=BASE_10, unsigned int fr=BASE_10): mIRadix(ir), mFRadix(fr) {}
+      precision_ctrl( unsigned int ir=BASE_256, unsigned int fr=BASE_256): mIRadix(ir), mFRadix(fr) {}
       
       // Coordinate functions
       inline int I_RADIX() const						{ return mIRadix; }
@@ -142,7 +142,7 @@ class precision_ctrl {
 
 extern precision_ctrl precision_ctrl;
 
-static const int RADIX = BASE_10;			// Set internal base for the arbitrary precision
+static const int RADIX = BASE_256;			// Set internal base for the arbitrary precision
 
 inline std::string SIGN_STRING( int x )   { return x >=0 ? "+" : "-" ; }
 inline int CHAR_SIGN( char x )            { return x == '-' ? -1 : 1; }
